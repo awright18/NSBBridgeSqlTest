@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using NServiceBus;
 
+namespace N2;
+
 public class CreateOrderHandler : IHandleMessages<CreateOrder>
 {
     public async Task Handle(CreateOrder message, IMessageHandlerContext context)
@@ -10,6 +12,6 @@ public class CreateOrderHandler : IHandleMessages<CreateOrder>
 
         await context.Reply(new CreateOrderResponse { OrderId = message.OrderId }).ConfigureAwait(false);
 
-        // await context.Publish(new OrderCreated() { OrderId = message.OrderId }).ConfigureAwait(false);
+        await context.Publish(new OrderCreated() { OrderId = message.OrderId }).ConfigureAwait(false);
     }
 }

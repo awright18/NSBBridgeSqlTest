@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using NServiceBus;
 
+namespace N1;
+
 public class CreateOrderResponseHandler : IHandleMessages<CreateOrderResponse>
 {
     public Task Handle(CreateOrderResponse message, IMessageHandlerContext context)

@@ -1,7 +1,9 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using NServiceBus;
+
+namespace N2;
 
 static class Program
 {
@@ -9,7 +11,15 @@ static class Program
     {
         Console.Title = "N2";
         var endpointConfiguration = new EndpointConfiguration("N2");
-        endpointConfiguration.UsePersistence<LearningPersistence>();
+        
+        var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+        
+        var connectionString = @"Server=.\SqlExpress;Database=N2;Integrated Security=true;";
+        persistence.SqlDialect<SqlDialect.MsSqlServer>();
+        persistence.ConnectionBuilder(
+            connectionBuilder: () => new SqlConnection(connectionString));
+        var subscriptions = persistence.SubscriptionSettings();
+        subscriptions.CacheFor(TimeSpan.FromMinutes(1));
 
         endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Name == "CreateOrder");
         endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Name == "CreateOrderResponse");
@@ -20,7 +30,7 @@ static class Program
         endpointConfiguration.UseTransport(
             new SqlServerTransport(@"Server=.\SqlExpress;Database=N2;Integrated Security=true;")
             {
-                TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive
+                TransportTransactionMode = TransportTransactionMode.ReceiveOnly
             });
 
         #endregion

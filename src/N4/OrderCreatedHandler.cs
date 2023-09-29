@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
 
-namespace N3;
+namespace N4;
 
 public class OrderCreatedHandler :
     IHandleMessages<OrderCreated>

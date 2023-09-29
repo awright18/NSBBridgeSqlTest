@@ -3,17 +3,18 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using NServiceBus;
 
-namespace N3;
+namespace N4;
 
 static class Program
 {
     static async Task Main()
     {
-        Console.Title = "N3";
-        var endpointConfiguration = new EndpointConfiguration("N3");
+        Console.Title = "N4";
+        var endpointConfiguration = new EndpointConfiguration("N4");
         
-        var persistence = endpointConfiguration.UsePersistence<SqlPersistence>(); 
-        var connectionString = @"Server=.\SqlExpress;Database=N3;Integrated Security=true;";
+        var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+
+        var connectionString = @"Server=.\SqlExpress;Database=N4;Integrated Security=true;";
         persistence.SqlDialect<SqlDialect.MsSqlServer>();
         persistence.ConnectionBuilder(
             connectionBuilder: () => new SqlConnection(connectionString));
@@ -22,7 +23,7 @@ static class Program
         
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.UseTransport(
-            new SqlServerTransport(@"Server=.\SqlExpress;Database=N3;Integrated Security=true;")
+            new SqlServerTransport(@"Server=.\SqlExpress;Database=N4;Integrated Security=true;")
             {
                 TransportTransactionMode = TransportTransactionMode.ReceiveOnly
             });
