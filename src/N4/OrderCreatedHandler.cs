@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
@@ -9,9 +10,10 @@ public class OrderCreatedHandler :
 {
     private static readonly ILog Log = LogManager.GetLogger<OrderCreatedHandler>();
 
-    public Task Handle(OrderCreated message, IMessageHandlerContext context)
+    public async Task Handle(OrderCreated message, IMessageHandlerContext context)
     {
         Log.Info($"Subscriber has received OrderCreated event with OrderId {message.OrderId}.");
-        return Task.CompletedTask;
+        
+        await context.Reply(new CreateOrderResponse() { OrderId = message.OrderId });
     }
 }

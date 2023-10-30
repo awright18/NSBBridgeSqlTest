@@ -22,7 +22,7 @@ static class Program
         subscriptions.CacheFor(TimeSpan.FromMinutes(1));
 
         endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Name == "CreateOrder");
-        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Name == "CreateOrderResponse");
+        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Name == "CreateOrderResponse" || t.Name == "TestingReply");
         endpointConfiguration.Conventions().DefiningEventsAs(t => t.Name == "OrderCreated");
 
         #region alternative-learning-transport
