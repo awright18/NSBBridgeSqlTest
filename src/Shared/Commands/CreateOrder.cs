@@ -1,4 +1,7 @@
 ﻿using System;
+using NServiceBus;
+
+namespace Shared.Commands;
 
 public class CreateOrder
 {

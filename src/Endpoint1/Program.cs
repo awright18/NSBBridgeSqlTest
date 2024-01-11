@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using NServiceBus;
+using Shared.Commands;
+using Shared.Events;
 
 namespace N1;
 
@@ -9,30 +11,30 @@ static class Program
 {
     static async Task Main()
     {
-        Console.Title = "N1";
-        var endpointConfiguration = new EndpointConfiguration("N1");
-        
+        Console.Title = "Endpoint1";
+        var endpointConfiguration = new EndpointConfiguration("Endpoint1");
+
         var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
 
-        var connectionString = @"Server=.\SqlExpress;Database=N1;Integrated Security=true;";
+        var connectionString = @"Server=.\SqlExpress;Database=Db1;User Id=Db1User;Password=Db1password!";
         persistence.SqlDialect<SqlDialect.MsSqlServer>();
         persistence.ConnectionBuilder(
             connectionBuilder: () => new SqlConnection(connectionString));
         var subscriptions = persistence.SubscriptionSettings();
         subscriptions.CacheFor(TimeSpan.FromMinutes(1));
 
-        endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Name == "CreateOrder");
-        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Name == "CreateOrderResponse");
-        endpointConfiguration.Conventions().DefiningEventsAs(t => t.Name == "OrderCreated");
-
+        endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Namespace == "Shared.Commands");
+        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Namespace == "Shared.Messages");
+        endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "Shared.Events");
+        
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         var routing =
             endpointConfiguration.UseTransport(
-                new SqlServerTransport(@"Server=.\SqlExpress;Database=N1;Integrated Security=true;")
+                new SqlServerTransport(@"Server=.\SqlExpress;Database=Db1;User Id=Db1User;Password=Db1password!;")
                 {
                     TransportTransactionMode = TransportTransactionMode.ReceiveOnly
                 });
-        routing.RouteToEndpoint(typeof(CreateOrder), "N2");
+        routing.RouteToEndpoint(typeof(CreateOrder), "Endpoint2");
 
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.EnableInstallers();
@@ -48,8 +50,8 @@ static class Program
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "<Pending>")]
     static async Task Start(IEndpointInstance endpointInstance)
     {
-        Console.WriteLine("Press '1' to send the PlaceOrder command");
-        Console.WriteLine("Press '2' to publish the OrderReceived event");
+        Console.WriteLine("Press '1' to send the CreateOrder command");
+        Console.WriteLine("Press '2' to publish the OrderCreated event");
         Console.WriteLine("Press 'esc' other key to exit");
 
         while (true)

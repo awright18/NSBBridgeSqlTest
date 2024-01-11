@@ -2,40 +2,36 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using NServiceBus;
+using Shared;
 
-namespace N2;
+namespace N4;
 
 static class Program
 {
     static async Task Main()
     {
-        Console.Title = "N2";
-        var endpointConfiguration = new EndpointConfiguration("N2");
-        
+        Console.Title = "Endpoint4";
+        var endpointConfiguration = new EndpointConfiguration("Endpoint4");
+
         var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
-        
-        var connectionString = @"Server=.\SqlExpress;Database=N2;Integrated Security=true;";
+
+        var connectionString = @"Server=localhost;Database=Db4;User Id=Db4User;Password=Db4Password!";
         persistence.SqlDialect<SqlDialect.MsSqlServer>();
         persistence.ConnectionBuilder(
             connectionBuilder: () => new SqlConnection(connectionString));
         var subscriptions = persistence.SubscriptionSettings();
         subscriptions.CacheFor(TimeSpan.FromMinutes(1));
 
-        endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Name == "CreateOrder");
-        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Name == "CreateOrderResponse" || t.Name == "TestingReply");
-        endpointConfiguration.Conventions().DefiningEventsAs(t => t.Name == "OrderCreated");
-
-        #region alternative-learning-transport
-
+        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.UseTransport(
-            new SqlServerTransport(@"Server=.\SqlExpress;Database=N2;Integrated Security=true;")
+            new SqlServerTransport(@"Server=localhost;Database=Db4;User Id=Db4User;Password=Db4Password!")
             {
                 TransportTransactionMode = TransportTransactionMode.ReceiveOnly
             });
-
-        #endregion
-
-        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+        
+        endpointConfiguration.Conventions().DefiningCommandsAs(t => t.Namespace == "Shared.Commands");
+        endpointConfiguration.Conventions().DefiningMessagesAs(t => t.Namespace == "Shared.Messages");
+        endpointConfiguration.Conventions().DefiningEventsAs(t => t.Namespace == "Shared.Events");
 
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.EnableInstallers();

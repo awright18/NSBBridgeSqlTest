@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using Shared;
+using Shared.Events;
 
 namespace Bridge;
 
@@ -25,63 +27,63 @@ static class Program
             })
             .UseNServiceBusBridge((ctx, bridgeConfiguration) =>
             {
-                var n1 = new BridgeTransport(
-                    new SqlServerTransport(@"Server=.\SqlExpress;Database=N1;Integrated Security=true;")
+                var bridgeTransport1 = new BridgeTransport(
+                    new SqlServerTransport(@"Server=.\SqlExpress;Database=Db1;User Id=Db1User;Password=Db1password!;")
                     {
                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
                     })
                 {
-                    
-                    Name = $"SQL-N1", AutoCreateQueues = true
+                    Name = $"SQL-Endpoint1", AutoCreateQueues = true
                 };
-                
-                n1.HasEndpoint("N1");
 
-                var n2 = new BridgeTransport(
-                    new SqlServerTransport(@"Server=.\SqlExpress;Database=N2;Integrated Security=true;")
+                bridgeTransport1.HasEndpoint("Endpoint1");
+
+                var bridgetTransport2 = new BridgeTransport(
+                    new SqlServerTransport(@"Server=localhost;Database=Db2;User Id=Db2User;Password=Db2Password!;")
                     {
                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
                     })
                 {
-                    Name = $"SQL-N2", AutoCreateQueues = true
+                    Name = $"SQL-Endpoint2", AutoCreateQueues = true
                 };
 
-                n2.HasEndpoint("N2");
-                
-                var n3 = new BridgeTransport(
-                    new SqlServerTransport(@"Server=.\SqlExpress;Database=N3;Integrated Security=true;")
+                bridgetTransport2.HasEndpoint("Endpoint2");
+
+                var bridgeTransport3 = new BridgeTransport(
+                    new SqlServerTransport(@"Server=.\SqlExpress;Database=Db3;User Id=Db3User;Password=Db3Password!;")
                     {
                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
                     })
                 {
-                    Name = $"SQL-N3", AutoCreateQueues = true
+                    Name = $"SQL-Endpoint3", AutoCreateQueues = true
                 };
 
-                var n3Endpoint = new BridgeEndpoint("N3");
-                
-                n3Endpoint.RegisterPublisher("OrderCreated", "N2");
+                var endpoint3 = new BridgeEndpoint("Endpoint3");
 
-                n3.HasEndpoint(n3Endpoint);
+                endpoint3.RegisterPublisher<OrderCreated>("Endpoint2");
                 
-                var n4 = new BridgeTransport(
-                    new SqlServerTransport(@"Server=.\SqlExpress;Database=N4;Integrated Security=true;")
+                bridgeTransport3.HasEndpoint(endpoint3);
+
+                var bridgeTransport4 = new BridgeTransport(
+                    new SqlServerTransport(@"Server=localhost;Database=Db4;User Id=Db4User;Password=Db4Password!")
                     {
                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
                     })
                 {
-                    Name = $"SQL-N4", AutoCreateQueues = true
+                    Name = $"SQL-Endpoint4", AutoCreateQueues = true
                 };
 
-                var n4Endpoint = new BridgeEndpoint("N4");
+                var endpoint4 = new BridgeEndpoint("Endpoint4");
+                endpoint4.RegisterPublisher<OrderBilled>("Endpoint3");
                 
-                n4Endpoint.RegisterPublisher("OrderCreated", "N2");
-
-                n4.HasEndpoint(n4Endpoint);
+                bridgeTransport4.HasEndpoint(endpoint4);
                 
-                bridgeConfiguration.AddTransport(n1);
-                bridgeConfiguration.AddTransport(n2);
-                bridgeConfiguration.AddTransport(n3);
-                bridgeConfiguration.AddTransport(n4);
+                bridgeConfiguration.AddTransport(bridgeTransport1);
+                bridgeConfiguration.AddTransport(bridgetTransport2);
+                bridgeConfiguration.AddTransport(bridgeTransport4);
+                bridgeConfiguration.AddTransport(bridgeTransport3);
+                
+                
             })
             .Build()
             .RunAsync().ConfigureAwait(false);
