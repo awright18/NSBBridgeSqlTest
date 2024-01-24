@@ -4,7 +4,7 @@ using NServiceBus.Logging;
 using Shared.Events;
 using Shared.Messages;
 
-namespace N4;
+namespace Endpoint4;
 
 public class OrderBilledHandler :
     IHandleMessages<OrderBilled>
@@ -15,9 +15,9 @@ public class OrderBilledHandler :
     {
         Log.Info($"Subscriber has received OrderBilled event with OrderId {message.OrderId}.");
 
-        await context.Reply(new OrderBilledResponse() { OrderId = message.OrderId });
+        // await context.Reply(new OrderBilledResponse() { OrderId = message.OrderId });
         
-        Log.Info($"Replied to publisher of OrderBilled with OrderId {message.OrderId}");
+        // Log.Info($"Replied to publisher of OrderBilled with OrderId {message.OrderId}");
         
         
     }

@@ -5,7 +5,7 @@ using Shared.Commands;
 using Shared.Events;
 using Shared.Messages;
 
-namespace N2;
+namespace Endpoint2;
 
 public class CreateOrderHandler : IHandleMessages<CreateOrder>
 {
@@ -15,7 +15,7 @@ public class CreateOrderHandler : IHandleMessages<CreateOrder>
 
         Console.WriteLine($"Received CreateOrder Command with ReplyToAddress {context.ReplyToAddress}");
 
-        await context.Reply(new CreateOrderResponse() { OrderId = message.OrderId });
+        // await context.Reply(new CreateOrderResponse() { OrderId = message.OrderId });
         
         Console.WriteLine($"Sent CreateOrderResponse to Endpoint1 with OrderId {message.OrderId}");
 

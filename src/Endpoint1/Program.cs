@@ -5,7 +5,7 @@ using NServiceBus;
 using Shared.Commands;
 using Shared.Events;
 
-namespace N1;
+namespace Endpoint1;
 
 static class Program
 {

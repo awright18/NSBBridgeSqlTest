@@ -3,7 +3,7 @@ using NServiceBus;
 using NServiceBus.Logging;
 using Shared.Messages;
 
-namespace N3;
+namespace Endpoint3;
 
 public class OrderBilledResponseHandler :
     IHandleMessages<OrderBilledResponse>

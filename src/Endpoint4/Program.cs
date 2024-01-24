@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 using NServiceBus;
 using Shared;
 
-namespace N4;
+namespace Endpoint4;
 
 static class Program
 {

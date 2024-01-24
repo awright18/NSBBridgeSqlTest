@@ -3,7 +3,7 @@ using NServiceBus;
 using NServiceBus.Logging;
 using Shared.Events;
 
-namespace N3;
+namespace Endpoint3;
 
 public class OrderCreatedHandler :
     IHandleMessages<OrderCreated>
@@ -15,5 +15,7 @@ public class OrderCreatedHandler :
         Log.Info($"Subscriber has received OrderCreated event with OrderId {message.OrderId}.");
 
         await context.Publish(new OrderBilled() { OrderId = message.OrderId });
+        
+        Log.Info($"OrderBilled Published with OrderId {message.OrderId}");
     }
 }

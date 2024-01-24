@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using Shared.Messages;
 
-namespace N1;
+namespace Endpoint1;
 
 public class CreateOrderResponseHandler : IHandleMessages<CreateOrderResponse>
 {
